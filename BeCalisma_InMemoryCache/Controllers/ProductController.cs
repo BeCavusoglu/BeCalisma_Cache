@@ -16,32 +16,37 @@ namespace BeCalisma_InMemoryCache.Controllers
         public IActionResult Index()
         {
             // key deðerinin memory de var mý kontrol ediyor
-            //1.Yol
-            if (string.IsNullOrEmpty(_memoryCache.Get<string>("zaman")))
-            {
-                _memoryCache.Set<string>("zaman", DateTime.Now.ToString());
-            }
-            //2.Yol 
-            if (!_memoryCache.TryGetValue("zaman", out string zamanCache))
-            {
-                _memoryCache.Set<string>("zaman", DateTime.Now.ToString());
-            }
+        
+                MemoryCacheEntryOptions options = new MemoryCacheEntryOptions();
+
+            options.AbsoluteExpiration = DateTime.Now.AddMinutes(1); 
+
+            options.SlidingExpiration = TimeSpan.FromSeconds(10);
+                    
+                _memoryCache.Set<string>("time", DateTime.Now.ToString(),options);
 
             return View();
         }
 
         public IActionResult Show()
         {
-            _memoryCache.Remove("zaman");
+            /*
+            _memoryCache.Remove("time");
 
             // Önce çeker yoksa oluþturur
-            _memoryCache.GetOrCreate<string>("zaman", x =>
+            _memoryCache.GetOrCreate<string>("time", x =>
             {               
                return DateTime.Now.ToString();
             });
 
 
-           ViewBag.zaman=_memoryCache.Get<string>("zaman");
+           ViewBag.zaman=_memoryCache.Get<string>("time");
+            */
+
+            _memoryCache.TryGetValue("time", out string timeCache);
+           
+            ViewBag.time = timeCache;
+                    
 
             return View();
         }
